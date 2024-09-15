@@ -1,0 +1,53 @@
+# Byte-compiled, optimized, and DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cache
+.cache
+.pytest_cache/
+.webassets-cache
+.mypy_cache/
+.mf
+.rollup.cache
+tsconfig.tsbuildinfo
+
+# Code editor (IntelliJ & VSCode)
+*.iml
+*.ipr
+*.iws
+.idea/
+.classpath
+.project
+.settings/
+.vscode/
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Database-related
+*.sqlite3
+*.db
+postgres-data
+
+# Dotenvs
+.env
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Log Files
+logs
+*.log
+
+# Virtual Environment & packages
+.python-version
+
+# Volumes
+/pgadmin
