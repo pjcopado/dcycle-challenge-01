@@ -3,3 +3,16 @@ line-length = 130
 target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
