@@ -1,1 +1,1 @@
-from src.app.phase.models import *
+from src.app.lca.models import *
