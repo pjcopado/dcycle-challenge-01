@@ -1,7 +1,7 @@
 """create lca
 
 Revision ID: 20240918094431
-Revises: 20240918094321
+Revises: 20240918094400
 Create Date: 2024-09-18 11:44:31.743811
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "20240918094431"
-down_revision = "20240918094321"
+down_revision = "20240918094400"
 branch_labels = None
 depends_on = None
 

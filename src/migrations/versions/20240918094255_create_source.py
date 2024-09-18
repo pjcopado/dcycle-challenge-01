@@ -24,7 +24,7 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column("source_name", sa.String(length=64), nullable=False),
         sa.Column("source_type", sa.String(length=64), nullable=False),
-        sa.Column("db_version", sa.String(length=64), nullable=False),
+        sa.Column("db_version", sa.DECIMAL(5, 2), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint("id"),

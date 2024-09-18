@@ -1,7 +1,7 @@
 """create impact
 
 Revision ID: 20240918094321
-Revises: 20240918094255
+Revises: 20240918094300
 Create Date: 2024-09-18 11:43:21.891459
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "20240918094321"
-down_revision = "20240918094255"
+down_revision = "20240918094300"
 branch_labels = None
 depends_on = None
 
