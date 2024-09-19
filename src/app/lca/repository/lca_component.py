@@ -83,5 +83,5 @@ class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponen
         self.async_session.add(obj_db)
         await self.async_session.flush()
         for component in obj_in.components:
-            await self.create_child(obj_in=component, lca_id=lca_id, parent_id=obj_db.id, phase_id=obj_db.phase_id)
+            await self.create_child(obj_in=component, lca_id=lca_id, parent_id=obj_db.id, phase_id=obj_db.phase_id, unit=unit)
         return obj_db
