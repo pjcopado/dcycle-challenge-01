@@ -1,3 +1,4 @@
+import typing
 import uuid
 
 from fastapi import APIRouter, Body, status, Depends
@@ -19,9 +20,11 @@ router = APIRouter(prefix="/lca/{lca_id}/components", tags=["lca components"])
 async def list_lca_components(
     lca: deps.LCA,
     lca_component_id: uuid.UUID = None,
+    phase_id: int = None,
+    level: int | typing.Literal["last"] = None,
     lca_component_repo: repository.LCAComponentRepository = Depends(get_repository(repo_type=repository.LCAComponentRepository)),
 ):
-    return await lca_component_repo.get_all_hierarchy(lca_id=lca.id, id=lca_component_id)
+    return await lca_component_repo.get_all_hierarchy(lca_id=lca.id, id=lca_component_id, phase_id=phase_id, level=level)
 
 
 @router.post(
@@ -38,7 +41,7 @@ async def create_lca_component(
     if obj_in.parent_id is None:
         same_phase_base_lca_component = await lca_component_repo.get_by_attributes(lca_id=lca.id, phase_id=obj_in.phase_id)
         if same_phase_base_lca_component is not None:
-            raise exception.BaseAPIError(status_code=400, detail="LCA component with the same phase already exists")
+            raise exception.BaseAPIError(status_code=400, detail="LCA base component with the same phase already exists")
     else:
         parent = await lca_component_repo.get_by_id_or_raise(obj_in.parent_id)
         if parent.lca_id != lca.id:
@@ -60,7 +63,7 @@ async def create_lca_component(
     status_code=status.HTTP_200_OK,
     response_model=sch.LCAComponentSch,
 )
-async def get_lca_component(lca_component: deps.LCAComponent, lca: deps.LCA):
+async def get_lca_component(lca_component: deps.LCAComponent):
     return lca_component
 
 

@@ -14,31 +14,27 @@ class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponen
         stmt = sa.select(self.model).where(self.model.parent_id.is_(None))
         return stmt.order_by(self.model.name.asc())
 
-    async def get_all_hierarchy(self, lca_id: uuid.UUID, id: uuid.UUID = None):
+    async def get_all_hierarchy(self, lca_id: uuid.UUID, id: uuid.UUID = None, phase_id: int = None, level: int | str = None):
         filters = [self.model.lca_id == lca_id]
-
         if id is not None:
             filters.append(self.model.id == id)
         else:
             filters.append(self.model.parent_id.is_(None))
-
+        if phase_id is not None:
+            filters.append(self.model.phase_id == phase_id)
         hierarchy = sa.select(self.model, sa.literal(0).label("level")).filter(*filters).cte(name="hierarchy", recursive=True)
-
         parent = aliased(hierarchy, name="p")
         children = aliased(self.model, name="c")
         hierarchy = hierarchy.union_all(
             sa.select(children, (parent.c.level + 1).label("level")).filter(children.parent_id == parent.c.id)
         )
-
         stmt = sa.select(self.model, hierarchy.c.level).join(hierarchy, self.model.id == hierarchy.c.id)
-
         stmt = stmt.order_by(self.model.name.asc())
         query = await self.async_session.execute(stmt)
         items = query.unique().fetchall()
 
         def build_hierarchy(items: list):
             items_by_id = {item.id: item.__dict__ for item, level in items}
-
             root_items = []
             for item, level in items:
                 if item.parent_id is None or item.id == id:

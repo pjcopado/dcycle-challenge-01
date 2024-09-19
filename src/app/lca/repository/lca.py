@@ -56,6 +56,19 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
 
         # TODO falta aplicar impactos. cómo se calculan?
 
+        impact_stmt = sa.select(
+            models.Impact.source_id, models.Impact.category.label("impact_category"), models.Impact.value.label("impact_value")
+        ).where(models.Impact.source_id.in_(df["source_id"].unique()))
+
+        def pandas_query(session):
+            conn = session.connection()
+            return pd.read_sql_query(impact_stmt, conn)
+
+        impact_df = await self.async_session.run_sync(pandas_query)
+        # print(impact_df)
+
+        ####
+
         df_dict = df.to_dict(orient="records")
 
         data = defaultdict(list)
@@ -73,5 +86,4 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
 
         result = [{"name": group_name, "phases": phases} for group_name, phases in data.items()]
 
-        print(result)
         return result

@@ -39,8 +39,9 @@ class LCAComponentUpdateSch(OrmBaseModel):
 
 
 class LCAComponentSch(LCAComponentBaseSch, UUIDModelMixin):
-    pass
+    phase_id: int = pydantic.Field(...)
 
 
 class LCAComponentHierarchySch(LCAComponentBaseSch, UUIDModelMixin):
+    phase_id: int = pydantic.Field(...)
     components: list["LCAComponentHierarchySch"] = []
