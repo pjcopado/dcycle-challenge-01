@@ -1,9 +1,9 @@
-__all__ = ["LCACreateSch", "LCASch"]
+__all__ = ["LCACreateSch", "LCAUpdateSch", "LCASch"]
 
 import pydantic
 
 from src.app.common.schemas import OrmBaseModel, UUIDModelMixin
-from .lca_component import LCAComponentSch
+from .lca_component import *
 
 
 class LCABaseSch(OrmBaseModel):
@@ -14,5 +14,9 @@ class LCACreateSch(LCABaseSch):
     pass
 
 
+class LCAUpdateSch(OrmBaseModel):
+    name: str = pydantic.Field(None, min_length=2, max_length=64)
+
+
 class LCASch(LCABaseSch, UUIDModelMixin):
-    components: list[LCAComponentSch]
+    pass
