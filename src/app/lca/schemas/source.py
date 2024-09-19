@@ -10,7 +10,6 @@ class SourceBaseSch(OrmBaseModel):
     source_name: str = pydantic.Field(..., min_length=2, max_length=64)
     source_type: str = pydantic.Field(..., min_length=2, max_length=64)
     db_version: float = pydantic.Field(..., ge=0)
-    impacts: list[ImpactSch]
 
 
 class SourceCreateSch(SourceBaseSch):
@@ -24,4 +23,4 @@ class SourceUpdateSch(OrmBaseModel):
 
 
 class SourceSch(SourceBaseSch, UUIDModelMixin):
-    pass
+    impacts: list[ImpactSch] = None
