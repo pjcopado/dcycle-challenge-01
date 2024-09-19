@@ -1,24 +1,23 @@
-__all__ = ["Base", "UUIDMixIn", "IntegerIDMixIn", "StringIDMixIn", "StringTagMixIn", "DeletedMixIn"]
+__all__ = ["Base", "UUIDMixIn", "IntegerIDMixIn"]
 
 
 import uuid
 import datetime as dt
 
-import sqlalchemy as sqla
+import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase, Mapped as Mapped, mapped_column as mapped_column
 from sqlalchemy.sql import functions as sqlalchemy_functions
-from sqlalchemy.dialects.postgresql import UUID
 
 
 class DBTable(DeclarativeBase):
     __table_args__ = {"extend_existing": True}
-    metadata: sqla.MetaData = sqla.MetaData()
+    metadata: sa.MetaData = sa.MetaData()
 
     created_at: Mapped[dt.datetime] = mapped_column(
-        sqla.DateTime(timezone=True), index=True, nullable=False, server_default=sqlalchemy_functions.now(), sort_order=70
+        sa.DateTime(timezone=True), index=True, nullable=False, server_default=sqlalchemy_functions.now(), sort_order=70
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
-        sqla.DateTime(timezone=True), nullable=True, onupdate=sqlalchemy_functions.now(), sort_order=80
+        sa.DateTime(timezone=True), nullable=True, onupdate=sqlalchemy_functions.now(), sort_order=80
     )
 
     def __repr__(self) -> str:
@@ -30,9 +29,9 @@ Base = DBTable
 
 class UUIDMixIn(object):
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, nullable=False, server_default=sqla.text("gen_random_uuid()"), sort_order=-1
+        primary_key=True, nullable=False, server_default=sa.text("gen_random_uuid()"), sort_order=-1
     )
 
 
 class IntegerIDMixIn(object):
-    id: Mapped[int] = mapped_column(sqla.BigInteger, primary_key=True, nullable=False, autoincrement=True, sort_order=-1)
+    id: Mapped[int] = mapped_column(sa.BigInteger, primary_key=True, nullable=False, autoincrement=True, sort_order=-1)

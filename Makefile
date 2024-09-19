@@ -1,6 +1,10 @@
 install_dependencies:
 	pip install -r requirements.txt
 
+local_test:
+	export DB_CONNECTION_STATUS=$$? && \
+	python -Xfrozen_modules=off -m uvicorn src.app.main:app --port 8000 --log-level debug --reload
+
 alembic_revision:
 	@echo "Please enter a message for the review:"
 	@read MESSAGE; \
