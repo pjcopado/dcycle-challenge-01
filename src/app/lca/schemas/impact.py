@@ -1,4 +1,4 @@
-__all__ = ["ImpactCreateSch", "ImpactSch"]
+__all__ = ["ImpactCreateSch", "ImpactUpdateSch", "ImpactSch"]
 
 import uuid
 
@@ -14,6 +14,11 @@ class ImpactBaseSch(OrmBaseModel):
 
 class ImpactCreateSch(ImpactBaseSch):
     source_id: uuid.UUID = pydantic.Field(...)
+
+
+class ImpactUpdateSch(OrmBaseModel):
+    value: float = pydantic.Field(None)
+    category: str = pydantic.Field(None, min_length=2, max_length=64)
 
 
 class ImpactSch(ImpactBaseSch, UUIDModelMixin):
