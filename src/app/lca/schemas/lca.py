@@ -3,7 +3,6 @@ __all__ = ["LCACreateSch", "LCAUpdateSch", "LCASch"]
 import pydantic
 
 from src.app.common.schemas import OrmBaseModel, UUIDModelMixin
-from .lca_component import *
 
 
 class LCABaseSch(OrmBaseModel):

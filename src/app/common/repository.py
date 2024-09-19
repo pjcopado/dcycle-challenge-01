@@ -40,6 +40,14 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise BaseAPIError(status_code=400, detail=f"{self.model.__name__} with {id=} does not exist")
         return record
 
+    async def get_by_attributes(self, **kwargs) -> ModelType | None:
+        stmt = sa.select(self.model)
+        for attr, value in kwargs.items():
+            stmt = stmt.where(getattr(self.model, attr) == value)
+        stmt = stmt.order_by(self.model.created_at.asc())
+        query = await self.async_session.execute(stmt)
+        return query.scalar()
+
     async def create(self, *, obj_in: CreateSchemaType | dict, **kwargs) -> ModelType:
         if isinstance(obj_in, dict):
             obj_in_dict = obj_in

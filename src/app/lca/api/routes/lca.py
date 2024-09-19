@@ -5,6 +5,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 from src.app.common.api.dependencies.repository import get_repository
 from src.app.lca.api import dependencies as deps
 from src.app.lca import repository, schemas as sch
+from src.app.core import exception
 
 router = APIRouter(prefix="/lca", tags=["lca"])
 
@@ -71,3 +72,18 @@ async def delete_lca(
     lca_repo: repository.LCARepository = Depends(get_repository(repo_type=repository.LCARepository)),
 ):
     await lca_repo.delete(obj_db=lca)
+
+
+@router.get(
+    "/{lca_id}/impacts",
+    summary="get impacts by lca id",
+    status_code=status.HTTP_200_OK,
+    response_model=list[sch.LCAImpactSch],
+)
+async def get_lca(
+    lca: deps.LCA,
+    lca_repo: repository.LCARepository = Depends(get_repository(repo_type=repository.LCARepository)),
+):
+    impact = await lca_repo.calculate_impact(id=lca.id)
+    return impact
+    raise exception.BaseAPIError()

@@ -1,12 +1,11 @@
 import uuid
 
 from fastapi import APIRouter, Body, status, Depends
-from fastapi_pagination import Page
-from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 
 from src.app.common.api.dependencies.repository import get_repository
 from src.app.lca.api import dependencies as deps
 from src.app.lca import repository, schemas as sch
+from src.app.core import exception
 
 router = APIRouter(prefix="/lca/{lca_id}/components", tags=["lca components"])
 
@@ -36,6 +35,22 @@ async def create_lca_component(
     obj_in: sch.LCAComponentCreateSch = Body(...),
     lca_component_repo: repository.LCAComponentRepository = Depends(get_repository(repo_type=repository.LCAComponentRepository)),
 ):
+    if obj_in.parent_id is None:
+        same_phase_base_lca_component = await lca_component_repo.get_by_attributes(lca_id=lca.id, phase_id=obj_in.phase_id)
+        if same_phase_base_lca_component is not None:
+            raise exception.BaseAPIError(status_code=400, detail="LCA component with the same phase already exists")
+    else:
+        parent = await lca_component_repo.get_by_id_or_raise(obj_in.parent_id)
+        if parent.lca_id != lca.id:
+            raise exception.BaseAPIError(status_code=400, detail="Parent LCA component does not belong to the LCA")
+        if parent.phase_id != obj_in.phase_id:
+            raise exception.BaseAPIError(
+                status_code=400, detail="Parent LCA component phase does not match the new component phase"
+            )
+        if parent.unit != obj_in.unit:
+            raise exception.BaseAPIError(
+                status_code=400, detail="Parent LCA component unit does not match the new component unit"
+            )
     return await lca_component_repo.create(obj_in=obj_in, lca_id=lca.id)
 
 

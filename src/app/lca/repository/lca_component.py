@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import aliased
 
 from src.app.common.repository import BaseRepository
-from src.app.lca import models, schemas as sch
+from src.app.lca import models, schemas as sch, enum
 
 
 class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponentCreateSch, sch.LCAComponentUpdateSch]):
@@ -60,19 +60,28 @@ class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponen
         self.async_session.add(obj_db)
         await self.async_session.flush()
         for component in obj_in.components:
-            await self.create_child(obj_in=component, lca_id=lca_id, parent_id=obj_db.id, phase_id=obj_db.phase_id)
+            await self.create_child(
+                obj_in=component, lca_id=lca_id, parent_id=obj_db.id, phase_id=obj_in.phase_id, unit=obj_in.unit
+            )
         await self.async_session.commit()
         await self.async_session.refresh(obj_db)
         obj_db = await self.get_all_hierarchy(lca_id=obj_db.lca_id, id=obj_db.id)
         return obj_db[0]
 
     async def create_child(
-        self, *, obj_in: sch.LCAComponentChildCreateSch, lca_id: uuid.UUID, parent_id: uuid.UUID, phase_id: int
+        self,
+        *,
+        obj_in: sch.LCAComponentChildCreateSch,
+        lca_id: uuid.UUID,
+        parent_id: uuid.UUID,
+        phase_id: int,
+        unit: enum.UnitEnum,
     ) -> model:
         obj_in_dict = obj_in.model_dump()
         obj_in_dict["lca_id"] = lca_id
         obj_in_dict["parent_id"] = parent_id
         obj_in_dict["phase_id"] = phase_id
+        obj_in_dict["unit"] = unit
         components = obj_in_dict.pop("components", [])
         obj_db = self.model(**obj_in_dict)
         self.async_session.add(obj_db)
