@@ -1,0 +1,38 @@
+name: ${PROJECT_NAME}
+
+services:
+  web:
+    container_name: ${PROJECT_NAME}-app
+    build: .
+    platform: linux/x86_64
+    ports:
+      - 8000:8000
+      - 5678:5678
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: ${PROJECT_NAME}-postgresql
+    image: postgres:15.4
+    ports:
+      - 5433:5433
+    command: -p 5433
+    env_file:
+      - .env.docker
+
+  pgadmin:
+    container_name: ${PROJECT_NAME}-pgadmin
+    image: dpage/pgadmin4:8.1
+    restart: always
+    ports:
+      - 5050:80
+    env_file:
+      - .env.docker
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres

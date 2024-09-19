@@ -1,19 +1,15 @@
+import os
+import dotenv
 import pathlib
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+dotenv.load_dotenv()
 
 ROOT_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
 
 class Settings(BaseSettings):
-
-    model_config = SettingsConfigDict(
-        env_file=f"{str(ROOT_DIR)}/.env",
-        env_file_encoding="utf-8",
-        case_sensitive=True,
-        validate_assignment=True,
-        extra="allow",
-    )
 
     # PROJECT INFO
     TITLE: str = "Dcycle ♻️"
@@ -82,4 +78,31 @@ class Settings(BaseSettings):
         }
 
 
-settings = Settings()
+class LocalSettings(Settings):
+
+    model_config = SettingsConfigDict(
+        env_file=f"{str(ROOT_DIR)}/.env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        validate_assignment=True,
+        extra="allow",
+    )
+
+
+class DockerSettings(Settings):
+
+    model_config = SettingsConfigDict(
+        env_file=f"{str(ROOT_DIR)}/.env.docker",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        validate_assignment=True,
+        extra="allow",
+    )
+
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+
+if ENVIRONMENT == "local":
+    settings = LocalSettings()
+
+settings = DockerSettings() if ENVIRONMENT == "DOCKER" else LocalSettings()
