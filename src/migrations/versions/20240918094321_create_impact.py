@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table(
         "impact",
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
-        sa.Column("value", sa.DECIMAL(precision=10, scale=6), nullable=False),
+        sa.Column("value", sa.DECIMAL(precision=12, scale=6), nullable=False),
         sa.Column("category", sa.String(length=64), nullable=False),
         sa.Column("source_id", sa.UUID(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),

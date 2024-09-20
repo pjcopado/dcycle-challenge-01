@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("phase_id", sa.Integer(), nullable=False),
         sa.Column("parent_id", sa.UUID(), nullable=True),
         sa.Column("name", sa.String(length=128), nullable=False),
-        sa.Column("quantity", sa.DECIMAL(precision=10, scale=6), nullable=False),
+        sa.Column("quantity", sa.DECIMAL(precision=12, scale=6), nullable=False),
         sa.Column("unit", sa.String(length=16), nullable=False),
         sa.Column("source_id", sa.UUID(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
