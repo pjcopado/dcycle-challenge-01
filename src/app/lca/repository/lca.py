@@ -12,19 +12,22 @@ from src.app.lca import models, schemas as sch
 class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSch]):
     model = models.LCA
 
+    async def get_all_stmt(self, name: str = None):
+        stmt = sa.select(self.model)
+        if name is not None:
+            stmt = stmt.where(self.model.name.ilike(f"%{name}%"))
+        return stmt.order_by(self.model.name.asc())
+
     async def calculate_impact(self, id: uuid.UUID = None):
         filters = [models.LCAComponent.lca_id == id, models.LCAComponent.parent_id.is_(None)]
-
         hierarchy = (
             sa.select(models.LCAComponent, sa.literal(0).label("level")).filter(*filters).cte(name="hierarchy", recursive=True)
         )
-
         parent = aliased(hierarchy, name="p")
         children = aliased(models.LCAComponent, name="c")
         hierarchy = hierarchy.union_all(
             sa.select(children, (parent.c.level + 1).label("level")).filter(children.parent_id == parent.c.id)
         )
-
         stmt = (
             sa.select(
                 models.PhaseGroup.sort_order.label("sort_order"),
@@ -40,7 +43,6 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
             .join(models.Phase, models.LCAComponent.phase_id == models.Phase.id)
             .join(models.PhaseGroup, models.Phase.group_id == models.PhaseGroup.id)
         )
-
         stmt = stmt.order_by(models.LCAComponent.name.asc())
 
         def pandas_query(session):
@@ -70,9 +72,7 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
         ####
 
         df_dict = df.to_dict(orient="records")
-
         data = defaultdict(list)
-
         for item in df_dict:
             phase = {
                 "code": item["phase_code"],
@@ -83,7 +83,5 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
                 "impact_distribution": 0,  # TODO
             }
             data[item["group_name"]].append(phase)
-
         result = [{"name": group_name, "phases": phases} for group_name, phases in data.items()]
-
         return result

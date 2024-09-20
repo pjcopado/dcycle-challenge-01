@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Body, status, Depends
+from fastapi import APIRouter, Body, status, Depends, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate as sqla_paginate
 
 from src.app.common.api.dependencies.repository import get_repository
 from src.app.lca.api import dependencies as deps
 from src.app.lca import repository, schemas as sch
-from src.app.core import exception
 
 router = APIRouter(prefix="/lca", tags=["lca"])
 
@@ -17,9 +16,10 @@ router = APIRouter(prefix="/lca", tags=["lca"])
     response_model=Page[sch.LCASch],
 )
 async def list_lca(
+    name: str = Query(None, min_length=2),
     lca_repo: repository.LCARepository = Depends(get_repository(repo_type=repository.LCARepository)),
 ):
-    stmt = await lca_repo.get_all_stmt()
+    stmt = await lca_repo.get_all_stmt(name=name)
     return await sqla_paginate(lca_repo.async_session, stmt)
 
 
@@ -84,6 +84,4 @@ async def get_lca(
     lca: deps.LCA,
     lca_repo: repository.LCARepository = Depends(get_repository(repo_type=repository.LCARepository)),
 ):
-    impact = await lca_repo.calculate_impact(id=lca.id)
-    return impact
-    raise exception.BaseAPIError()
+    return await lca_repo.calculate_impact(id=lca.id)
