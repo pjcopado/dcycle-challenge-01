@@ -32,9 +32,12 @@ class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponen
         stmt = stmt.order_by(self.model.name.asc())
         query = await self.async_session.execute(stmt)
         items = query.unique().fetchall()
+        if not items:
+            return []
 
         def build_hierarchy(items: list):
             items_by_id = {item.id: item.__dict__ for item, level in items}
+
             root_items = []
             for item, level in items:
                 if item.parent_id is None or item.id == id:
@@ -46,6 +49,13 @@ class LCAComponentRepository(BaseRepository[models.LCAComponent, sch.LCAComponen
                             parent["components"] = []
                         parent["components"].append(items_by_id[item.id])
             return root_items
+
+        if level is not None:
+            sorted_items = sorted(items, key=lambda x: x[1], reverse=True)
+            max_level = sorted_items[0][1]
+            level_ = max_level if level == "last" else level
+            response = [item[0].__dict__ for item in items if item[1] == level_]
+            return response
 
         return build_hierarchy(items)
 

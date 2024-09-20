@@ -24,6 +24,10 @@ async def list_lca_components(
     level: int | typing.Literal["last"] = None,
     lca_component_repo: repository.LCAComponentRepository = Depends(get_repository(repo_type=repository.LCAComponentRepository)),
 ):
+    if lca_component_id is not None and (phase_id is not None or level is not None):
+        raise exception.BaseAPIError(
+            status_code=400, detail="Cannot filter by phase_id or level when lca_component_id is provided"
+        )
     return await lca_component_repo.get_all_hierarchy(lca_id=lca.id, id=lca_component_id, phase_id=phase_id, level=level)
 
 
