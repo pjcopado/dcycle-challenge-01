@@ -19,6 +19,7 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
         return stmt.order_by(self.model.name.asc())
 
     async def calculate_impact(self, id: uuid.UUID = None):
+        # Get LCA components
         filters = [models.LCAComponent.lca_id == id, models.LCAComponent.parent_id.is_(None)]
         hierarchy = (
             sa.select(models.LCAComponent, sa.literal(0).label("level")).filter(*filters).cte(name="hierarchy", recursive=True)
@@ -56,8 +57,7 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
             .reset_index()
         )
 
-        # TODO falta aplicar impactos. cómo se calculan?
-
+        # Get impact values
         impact_stmt = sa.select(
             models.Impact.source_id, models.Impact.category.label("impact_category"), models.Impact.value.label("impact_value")
         ).where(models.Impact.source_id.in_(df["source_id"].unique()))
@@ -67,11 +67,17 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
             return pd.read_sql_query(impact_stmt, conn)
 
         impact_df = await self.async_session.run_sync(pandas_query)
-        # print(impact_df)
 
-        ####
+        # Calculate impact
+        final_df = pd.merge(df, impact_df, on="source_id", how="left")
+        final_df["impact"] = final_df["quantity"] * final_df["impact_value"]
+        final_df = (
+            final_df.groupby(["sort_order", "group_name", "phase_code", "phase_name", "unit"])
+            .agg({"quantity": "max", "impact": "sum"})
+            .reset_index()
+        )
 
-        df_dict = df.to_dict(orient="records")
+        df_dict = final_df.to_dict(orient="records")
         data = defaultdict(list)
         for item in df_dict:
             phase = {
@@ -79,7 +85,7 @@ class LCARepository(BaseRepository[models.LCA, sch.LCACreateSch, sch.LCAUpdateSc
                 "name": item["phase_name"],
                 "quantity": item["quantity"],
                 "unit": item["unit"],
-                "impact": 0,  # TODO
+                "impact": round(item["impact"], 6),
                 "impact_distribution": 0,  # TODO
             }
             data[item["group_name"]].append(phase)
