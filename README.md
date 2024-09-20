@@ -4,12 +4,36 @@ This guide will walk you through setting up the backend application.
 
 ## Python, PyEnv, & Virtual Environment Setup
 
-### Clone the Dcycle Backend repository
+1. **Clone the Dcycle Backend repository:**
 
-1. **Github CLI clone (can be any of 3)**
     ```shell
     git clone git@github.com:pjcopado/dcycle-challenge-01.git
     ```
+
+2. **Configure .env:**
+
+To configure your backend application, create a `.env` file in the root directory of your project. This file will contain all the necessary environment variables required to run the application.
+
+Here is an example of what your `.env` file should include:
+
+```env
+ENVIRONMENT=LOCAL
+
+# Settings
+PROJECT_NAME=dcycle
+SWAGGER_ENABLED=True
+DEBUG=True
+
+# DB Settings
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=dcycle
+```
+
+----
+
 ## Method A: Using Docker
 
 ### Step 1: Ensure you have the following installed:
@@ -98,29 +122,6 @@ This guide will walk you through setting up the backend application.
 
 ---
 
-## .env File Example
-
-To configure your backend application, create a `.env` file in the root directory of your project. This file will contain all the necessary environment variables required to run the application.
-
-Here is an example of what your `.env` file should include:
-
-```env
-ENVIRONMENT=LOCAL
-
-# Settings
-PROJECT_NAME=dcycle
-SWAGGER_ENABLED=True
-DEBUG=True
-
-# DB Settings
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=dcycle
-```
-
-----
 ## Database Setup
 
 ### Step 1: Install and Start PostgreSQL
