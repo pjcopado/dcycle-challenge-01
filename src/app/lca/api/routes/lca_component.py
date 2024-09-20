@@ -1,7 +1,7 @@
 import typing
 import uuid
 
-from fastapi import APIRouter, Body, status, Depends
+from fastapi import APIRouter, Body, status, Depends, Query
 
 from src.app.common.api.dependencies.repository import get_repository
 from src.app.lca.api import dependencies as deps
@@ -21,7 +21,9 @@ async def list_lca_components(
     lca: deps.LCA,
     lca_component_id: uuid.UUID = None,
     phase_id: int = None,
-    level: int | typing.Literal["last"] = None,
+    level: int | typing.Literal["last"] = Query(
+        None, description="Level of the hierarchy to retrieve. If 'last', returns the last level"
+    ),
     lca_component_repo: repository.LCAComponentRepository = Depends(get_repository(repo_type=repository.LCAComponentRepository)),
 ):
     if lca_component_id is not None and (phase_id is not None or level is not None):
