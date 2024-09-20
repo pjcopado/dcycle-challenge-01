@@ -35,7 +35,6 @@ class LCAComponentCreateSch(LCAComponentBaseSch):
 class LCAComponentUpdateSch(OrmBaseModel):
     name: str = pydantic.Field(None, min_length=2, max_length=128)
     quantity: float = pydantic.Field(None)
-    unit: enum.UnitEnum = pydantic.Field(None)
 
 
 class LCAComponentSch(LCAComponentBaseSch, UUIDModelMixin):
